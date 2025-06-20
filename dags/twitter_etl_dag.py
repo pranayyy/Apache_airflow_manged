@@ -36,7 +36,7 @@ default_args = {
     "retries": 1,
     "retry_delay": timedelta(minutes=5)
 }
-
+print("this is me running")
 with DAG("twitter_etl_dag",
          default_args=default_args,
          start_date=datetime(2025, 6, 20),
