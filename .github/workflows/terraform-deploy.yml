@@ -43,6 +43,7 @@ jobs:
     - name: Debug subnet_ids secret
       run: |
         echo ${{ secrets.SUBNET_IDS }}
+        echo ${{ secrets.TEST_SUBNETS }}
 
     - name: Terraform Plan
       run: |
