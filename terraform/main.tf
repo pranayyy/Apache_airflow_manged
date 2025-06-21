@@ -102,12 +102,12 @@ resource "aws_iam_role_policy_attachment" "mwaa_s3_policy" {
 
 # MWAA Environment
 resource "aws_mwaa_environment" "twitter_env" {
-  name              = "twitter-etl"
-  airflow_version   = "2.9.2"
-  dag_s3_path       = "dags"
-  source_bucket_arn = aws_s3_bucket.dag_bucket.arn
-  execution_role_arn = aws_iam_role.mwaa_execution_role.arn
-  environment_class = "mw1.small"
+  name                  = "twitter-etl"
+  airflow_version       = "2.9.2"
+  dag_s3_path           = "dags"
+  source_bucket_arn     = aws_s3_bucket.dag_bucket.arn
+  execution_role_arn    = aws_iam_role.mwaa_execution_role.arn
+  environment_class     = "mw1.small"
   webserver_access_mode = "PUBLIC_ONLY"
 
   network_configuration {
@@ -116,7 +116,7 @@ resource "aws_mwaa_environment" "twitter_env" {
   }
 
   airflow_configuration_options = {
-    "core.default_timezone" = "UTC"
+    "core.default_timezone"   = "UTC"
     "webserver.expose_config" = "True"
   }
 
