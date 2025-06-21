@@ -3,8 +3,8 @@ name: Test
 on:
   push:
     branches: [ master ]
-#    paths:
-#      - 'dags/**'
+    paths:
+      - 'dags/**'
 
 jobs:
   deploy:
