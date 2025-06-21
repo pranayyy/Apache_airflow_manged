@@ -40,6 +40,10 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
+    - name: Debug subnet_ids secret
+      run: |
+        echo '${{ secrets.SUBNET_IDS }}'
+
     - name: Terraform Plan
       run: |
         terraform plan -input=false -lock=false \
