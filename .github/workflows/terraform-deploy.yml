@@ -42,7 +42,7 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        terraform plan -input=false \
+        terraform plan -input=false -lock=false \
           -var="subnet_ids=${{ secrets.SUBNET_IDS }}" \
           -var="security_group_id=${{ secrets.SECURITY_GROUP_ID }}" \
           -var="twitter_bearer_token=${{ secrets.TWITTER_BEARER_TOKEN }}" \
