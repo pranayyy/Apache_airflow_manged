@@ -46,12 +46,12 @@ jobs:
         echo ${{ secrets.TEST_SUBNETS }}
 
     - name: Terraform Plan
+      env:
+        TF_VAR_subnet_ids: ${{ secrets.SUBNET_IDS }}
+        TF_VAR_security_group_id: ${{ secrets.SECURITY_GROUP_ID }}
+        TF_VAR_twitter_bearer_token: ${{ secrets.TWITTER_BEARER_TOKEN }}
       run: |
-        terraform plan -input=false -lock=false \
-          -var='subnet_ids=${{ secrets.SUBNET_IDS }}' \
-          -var='security_group_id=${{ secrets.SECURITY_GROUP_ID }}' \
-          -var='twitter_bearer_token=${{ secrets.TWITTER_BEARER_TOKEN }}' \
-          -out=tfplan
+        terraform plan -input=false -lock=false -out=tfplan
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
