@@ -1,19 +1,33 @@
 variable "aws_region" {
-  default = "us-east-1"
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
 }
 
 variable "dag_bucket_name" {
-  default = "pranai-mwaa-dags"
+  description = "S3 bucket name for MWAA DAGs"
+  type        = string
+  default     = "pranai-mwaa-dags"
 }
 
 variable "output_bucket_name" {
-  default = "pranai-twitter-output"
+  description = "S3 bucket name for output data"
+  type        = string
+  default     = "pranai-twitter-output"
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  description = "List of subnet IDs for MWAA"
+  type        = list(string)
 }
 
 variable "security_group_id" {
-  type = string
+  description = "Security group ID for MWAA"
+  type        = string
+}
+
+variable "twitter_bearer_token" {
+  description = "Twitter API Bearer Token"
+  type        = string
+  sensitive   = true
 }
