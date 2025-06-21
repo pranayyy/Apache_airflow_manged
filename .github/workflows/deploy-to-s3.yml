@@ -1,4 +1,4 @@
-name: Test
+name: Dags apache airflow
 
 on:
   push:
