@@ -3,8 +3,8 @@ name: Upload DAGs to S3
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'dags/**'
+#    paths:
+#      - 'dags/**'
 
 jobs:
   deploy:
