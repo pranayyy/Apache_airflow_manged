@@ -50,8 +50,7 @@ jobs:
         TF_VAR_security_group_id: ${{ secrets.SECURITY_GROUP_ID }}
         TF_VAR_twitter_bearer_token: ${{ secrets.TWITTER_BEARER_TOKEN }}
       run: |
-        terraform plan -input=false -lock=false -out=tfplan
-
+        terraform plan -input=false -lock=false -var='subnet_ids=["subnet-07b2df2f5c793f6a4", "subnet-061b1c272720ac475"]' -out=tfplan
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve tfplan
