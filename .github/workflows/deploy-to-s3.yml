@@ -24,3 +24,5 @@ jobs:
     - name: Upload DAGs to S3
       run: |
         aws s3 sync dags/ s3://${{ secrets.MWAA_DAG_BUCKET }}/dags/ --delete
+
+    - name: completed deploy to s3
