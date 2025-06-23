@@ -120,10 +120,6 @@ resource "aws_mwaa_environment" "twitter_env" {
     "webserver.expose_config" = "True"
   }
 
-  environment_variables = {
-    TWITTER_BEARER_TOKEN = var.twitter_bearer_token
-  }
-
   tags = {
     Environment = "production"
     Project     = "twitter-etl"
