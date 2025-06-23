@@ -47,7 +47,6 @@ jobs:
 
     - name: Terraform Plan
       env:
-        TF_VAR_subnet_ids: ${{ secrets.SUBNET_IDS }}
         TF_VAR_security_group_id: ${{ secrets.SECURITY_GROUP_ID }}
         TF_VAR_twitter_bearer_token: ${{ secrets.TWITTER_BEARER_TOKEN }}
       run: |
