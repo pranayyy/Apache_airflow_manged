@@ -1,7 +1,7 @@
 name: Deploy Infrastructure with Terraform
 on:
   push:
-    branches: [ master ]
+    branches: [ master ]  # Your default branch is master
     paths:
       - 'terraform/**'
   pull_request:
@@ -22,6 +22,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Debug workflow context
+      run: |
+        echo "Event name: ${{ github.event_name }}"
+        echo "Ref: ${{ github.ref }}"
+        echo "Default branch: ${{ github.event.repository.default_branch }}"
+        echo "Should apply: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}"
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -37,11 +44,6 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Debug subnet_ids secret
-      run: |
-        echo ${{ secrets.SUBNET_IDS }}
-        echo ${{ secrets.TEST_SUBNETS }}
-
     - name: Terraform Plan
       env:
         TF_VAR_security_group_id: ${{ secrets.SECURITY_GROUP_ID }}
@@ -50,5 +52,35 @@ jobs:
         terraform plan -input=false -lock=false -var='subnet_ids=["subnet-07b2df2f5c793f6a4", "subnet-061b1c272720ac475"]' -out=tfplan
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: terraform apply -auto-approve tfplan
+      # Apply on push to master OR manual trigger
+      if: (github.ref == 'refs/heads/master' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+      run: |
+        echo "Applying Terraform changes..."
+        terraform apply -auto-approve tfplan
+
+    - name: Apply skipped message
+      if: github.ref != 'refs/heads/master' && github.event_name != 'workflow_dispatch'
+      run: |
+        echo "Terraform apply skipped because:"
+        echo "- Current ref: ${{ github.ref }} (expected: refs/heads/master)"
+        echo "- Current event: ${{ github.event_name }} (expected: push or workflow_dispatch)"
+
+  deploy-dags:
+    name: 'Deploy DAGs'
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: (github.ref == 'refs/heads/master' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Upload DAGs to S3
+      run: |
+        aws s3 sync dags/ s3://${{ secrets.MWAA_DAG_BUCKET }}/dags/ --delete
