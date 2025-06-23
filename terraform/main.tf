@@ -92,7 +92,7 @@ resource "aws_iam_policy" "mwaa_s3_policy" {
 # Attach policies to MWAA role
 resource "aws_iam_role_policy_attachment" "mwaa_policy" {
   role       = aws_iam_role.mwaa_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/aws-service-role/AmazonMWAAServicePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonMWAAServiceRolePolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "mwaa_s3_policy" {
