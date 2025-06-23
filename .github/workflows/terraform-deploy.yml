@@ -50,5 +50,5 @@ jobs:
         terraform plan -input=false -lock=false -var='subnet_ids=["subnet-07b2df2f5c793f6a4", "subnet-061b1c272720ac475"]' -out=tfplan
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: terraform apply -auto-approve tfplan
