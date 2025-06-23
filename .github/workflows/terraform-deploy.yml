@@ -1,26 +1,23 @@
 name: Deploy Infrastructure with Terraform
-
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths:
       - 'terraform/**'
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
     paths:
       - 'terraform/**'
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-
     defaults:
       run:
         shell: bash
         working-directory: ./terraform
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -51,27 +48,7 @@ jobs:
         TF_VAR_twitter_bearer_token: ${{ secrets.TWITTER_BEARER_TOKEN }}
       run: |
         terraform plan -input=false -lock=false -var='subnet_ids=["subnet-07b2df2f5c793f6a4", "subnet-061b1c272720ac475"]' -out=tfplan
+
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve tfplan
-
-  deploy-dags:
-    name: 'Deploy DAGs'
-    runs-on: ubuntu-latest
-    needs: terraform
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: Upload DAGs to S3
-      run: |
-        aws s3 sync dags/ s3://${{ secrets.MWAA_DAG_BUCKET }}/dags/ --delete
