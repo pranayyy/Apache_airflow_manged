@@ -121,22 +121,19 @@ with DAG(
     # Task 1: Extract tweets
     extract_task = PythonOperator(
         task_id='extract_tweets',
-        python_callable=extract_tweets,
-        provide_context=True
+        python_callable=extract_tweets
     )
 
     # Task 2: Transform tweets
     transform_task = PythonOperator(
         task_id='transform_tweets',
-        python_callable=transform_tweets,
-        provide_context=True
+        python_callable=transform_tweets
     )
 
     # Task 3: Load to S3
     load_task = PythonOperator(
         task_id='load_to_s3',
-        python_callable=load_to_s3,
-        provide_context=True
+        python_callable=load_to_s3
     )
 
     # Define task dependencies
