@@ -10,7 +10,7 @@ from io import StringIO
 # Configuration
 BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 QUERY = "python"
-OUTPUT_BUCKET = "pranai-twitter-output"
+OUTPUT_BUCKET = "twitter-etl-output-bucket-unique-12345"
 
 
 def extract_tweets(**context):
