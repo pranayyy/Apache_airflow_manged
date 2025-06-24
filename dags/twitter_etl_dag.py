@@ -15,6 +15,7 @@ OUTPUT_BUCKET = "pranai-twitter-output"
 
 def extract_tweets(**context):
     """Extract tweets from Twitter API"""
+    BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAAB562gEAAAAAIpezF4%2B%2FC%2F5hFmb9fYPEbYp7Alw%3DWCCNog6vecLlSV4CAlMZuD08DPGFu14fF4Qt4Z3HCIe33pZWqI"
     headers = {"Authorization": f"Bearer {BEARER_TOKEN}"}
     url = "https://api.twitter.com/2/tweets/search/recent"
     params = {
