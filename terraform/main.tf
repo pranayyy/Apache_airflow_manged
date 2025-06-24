@@ -65,21 +65,32 @@ resource "aws_iam_role" "mwaa_execution_role" {
   })
 }
 
-# Custom policy for MWAA to access S3 buckets
-resource "aws_iam_policy" "mwaa_s3_policy" {
-  name = "mwaa-s3-policy"
+# Custom execution policy for MWAA (combines all required permissions)
+resource "aws_iam_policy" "mwaa_execution_policy" {
+  name = "mwaa-execution-policy"
 
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
         Effect = "Allow",
+        Action = "airflow:PublishMetrics",
+        Resource = "arn:aws:airflow:${var.aws_region}:*:environment/twitter-etl"
+      },
+      {
+        Effect = "Deny",
+        Action = "s3:ListAllMyBuckets",
+        Resource = [
+          aws_s3_bucket.dag_bucket.arn,
+          "${aws_s3_bucket.dag_bucket.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow",
         Action = [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket"
+          "s3:GetObject*",
+          "s3:GetBucket*",
+          "s3:List*"
         ],
         Resource = [
           aws_s3_bucket.dag_bucket.arn,
@@ -87,21 +98,78 @@ resource "aws_iam_policy" "mwaa_s3_policy" {
           aws_s3_bucket.output_bucket.arn,
           "${aws_s3_bucket.output_bucket.arn}/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup",
+          "logs:PutLogEvents",
+          "logs:GetLogEvents",
+          "logs:GetLogRecord",
+          "logs:GetLogGroupFields",
+          "logs:GetQueryResults"
+        ],
+        Resource = [
+          "arn:aws:logs:${var.aws_region}:*:log-group:airflow-twitter-etl-*"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:DescribeLogGroups"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetAccountPublicAccessBlock"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = "cloudwatch:PutMetricData",
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:ChangeMessageVisibility",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ReceiveMessage",
+          "sqs:SendMessage"
+        ],
+        Resource = "arn:aws:sqs:${var.aws_region}:*:airflow-celery-*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt",
+          "kms:DescribeKey",
+          "kms:GenerateDataKey*",
+          "kms:Encrypt"
+        ],
+        NotResource = "arn:aws:kms:*:*:key/*",
+        Condition = {
+          StringLike = {
+            "kms:ViaService" = [
+              "sqs.${var.aws_region}.amazonaws.com"
+            ]
+          }
+        }
       }
     ]
   })
 }
 
-# Attach AWS managed policy for MWAA (REQUIRED)
-resource "aws_iam_role_policy_attachment" "mwaa_service_role_policy" {
+# Attach the execution policy to the role
+resource "aws_iam_role_policy_attachment" "mwaa_execution_policy" {
   role       = aws_iam_role.mwaa_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonMWAAServiceRolePolicy"
-}
-
-# Attach custom S3 policy
-resource "aws_iam_role_policy_attachment" "mwaa_s3_policy" {
-  role       = aws_iam_role.mwaa_execution_role.name
-  policy_arn = aws_iam_policy.mwaa_s3_policy.arn
+  policy_arn = aws_iam_policy.mwaa_execution_policy.arn
 }
 
 # MWAA Environment
