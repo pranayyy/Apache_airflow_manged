@@ -107,6 +107,7 @@ default_args = {
     "email_on_failure": False,
     "email_on_retry": False,
     "retries": 2,
+    "execution_timeout": timedelta(minutes=60),
     "retry_delay": timedelta(minutes=5)
 }
 
