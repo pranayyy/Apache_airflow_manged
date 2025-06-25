@@ -36,13 +36,7 @@ with DAG(
         python_callable=hello_world,
         # Task-specific configurations for MWAA
         pool='default_pool',
-        queue='default',
-        executor_config={
-            'KubernetesExecutor': {
-                'request_memory': '1Gi',
-                'request_cpu': '100m',
-            }
-        } if dag.get_dag().executor_class == 'KubernetesExecutor' else {}
+        queue='default'
     )
 
     task_hello
