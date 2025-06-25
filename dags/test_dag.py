@@ -1,42 +1,47 @@
-from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
+from datetime import datetime, timedelta
 
-def hello_world():
-    print("Hello from Airflow!")
-    return "Hello from Airflow!"  # Always return a value
-
+# Default arguments
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2025, 6, 1),
+    'start_date': datetime(2025, 6, 25),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),  # Increased retry delay for MWAA
-    'execution_timeout': timedelta(minutes=10),  # Add execution timeout
+    'retry_delay': timedelta(minutes=5),
 }
 
-with DAG(
-    dag_id='simple_test_dag',
+# Create DAG
+dag = DAG(
+    'simple_bash_test_dag',
     default_args=default_args,
-    description='A simple DAG to test Airflow setup',
-    start_date=datetime(2025, 6, 1),
-    schedule_interval=None,  # Changed to manual trigger to avoid scheduling conflicts
+    description='A simple bash test DAG for MWAA',
+    schedule_interval=None,
     catchup=False,
-    tags=['test'],
-    # MWAA-specific configurations
-    max_active_runs=1,  # Limit concurrent DAG runs
-    max_active_tasks=5,  # Limit concurrent tasks
-    dagrun_timeout=timedelta(minutes=30),  # Overall DAG timeout
-) as dag:
+    tags=['test', 'mwaa', 'bash'],
+)
 
-    task_hello = PythonOperator(
-        task_id='say_hello',
-        python_callable=hello_world,
-        # Task-specific configurations for MWAA
-        pool='default_pool',
-        queue='default'
-    )
+# Simple bash task
+hello_task = BashOperator(
+    task_id='say_hello_bash',
+    bash_command='echo "Hello from MWAA with Bash!" && date',
+    dag=dag,
+)
 
-    task_hello
+# Python task without imports
+from airflow.operators.python_operator import PythonOperator
+
+def simple_hello():
+    """Very simple function"""
+    return "Hello from Python in MWAA!"
+
+python_task = PythonOperator(
+    task_id='say_hello_python',
+    python_callable=simple_hello,
+    dag=dag,
+)
+
+# Set task dependencies
+hello_task >> python_task
