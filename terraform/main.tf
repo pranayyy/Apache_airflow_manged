@@ -397,11 +397,11 @@ resource "aws_iam_role_policy_attachment" "mwaa_execution_policy" {
 # MWAA Environment
 resource "aws_mwaa_environment" "twitter_env" {
   name                  = "twitter-etl"
-  airflow_version       = "2.9.2"
+  airflow_version       = "2.10.3"
   dag_s3_path           = "dags"
   source_bucket_arn     = aws_s3_bucket.dag_bucket.arn
   execution_role_arn    = aws_iam_role.mwaa_execution_role.arn
-  environment_class     = "mw1.small"
+  environment_class     = "mw1.large"
   webserver_access_mode = "PUBLIC_ONLY"
 
   network_configuration {
