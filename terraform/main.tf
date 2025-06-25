@@ -412,7 +412,12 @@ resource "aws_mwaa_environment" "twitter_env" {
   airflow_configuration_options = {
     "core.default_timezone"   = "UTC"
     "webserver.expose_config" = "True"
-  }
+    "celery.predefined_queues"="default"
+    "celery.task_queued_timeout"="1800"
+    "celery.worker_autoscale"="5,5"
+    "celery.worker_precheck"="True"
+    "celery.worker_prefetch_multiplier"=1
+      }
 
   tags = {
     Environment = "production"
